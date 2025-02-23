@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khám Phá Sáng Tạo Nghệ Thuật</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Thêm mã Firebase vào đây -->
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.16.0/firebase-storage.js"></script>
+
+    <script>
+        // Cấu hình Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID",
+            measurementId: "YOUR_MEASUREMENT_ID"
+        };
+
+        // Khởi tạo Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.getAnalytics(app);
+        const db = firebase.getFirestore(app);
+        const storage = firebase.getStorage(app);
+    </script>
+    <style>
+       * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Tối ưu font chữ và giao diện chung */
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+        }
+
+        header h1 {
+            font-size: 36px;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 10px 0;
+        }
+
+        nav ul li {
+            margin: 0 20px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: #ffeb3b;
+        }
+
+        /* Phần Triển lãm Nghệ Thuật */
+        #gallery {
+            padding: 40px;
+            background-color: #fff;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #gallery h2 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-family: 'Dancing Script', cursive;
+            color: #4CAF50;
+        }
+
+        #gallery p {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        #gallery-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        #gallery-container figure {
+            width: 280px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        #gallery-container figure:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        #gallery-container img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        #gallery-container figure:hover img {
+            transform: scale(1.1);
+        }
+
+        #gallery-container figcaption {
+            padding: 15px;
+            background-color: #fff;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            font-size: 16px;
+            color: #555;
+        }
+
+        button {
+            background-color: transparent;
+            border: none;
+            font-size: 20px;
+            margin: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.7;
+        }
+
+        /* Phần Đăng Bài */
+        #submit-artwork {
+            background-color: #ffffff;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #submit-artwork h2 {
+            text-align: center;
+            font-size: 28px;
+            color: #4CAF50;
+        }
+
+        #submit-artwork p {
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        #submit-artwork form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #submit-artwork input, #submit-artwork textarea {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #submit-artwork button {
+            width: 80%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #submit-artwork button:hover {
+            background-color: #45a049;
+        }
+
+        /* Phần Liên Hệ */
+        #contact {
+            background-color: #fff;
+            padding: 30px;
+            margin-top: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #contact a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        #contact a:hover {
+            color: #45a049;
+        }
+
+        /* Phần Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer i {
+            color: blue;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Phần Bình luận */
+        .comments {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .comments input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .comments button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .comments button:hover {
+            background-color: #45a049;
+        }
+
+        .comment-list {
+            margin-top: 20px;
+        }
+
+        .comment-list p {
+            background-color: #e9e9e9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Khám Phá Sáng Tạo Nghệ Thuật</h1>
+        <nav>
+            <ul>
+                <li><a href="#about">Giới Thiệu</a></li>
+                <li><a href="#gallery">Triển Lãm</a></li>
+                <li><a href="#contest">Cuộc Thi</a></li>
+                <li><a href="#contact">Liên Hệ</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Phần Triển lãm Nghệ Thuật -->
+    <section id="gallery">
+        <h2>Triển Lãm Nghệ Thuật</h2>
+        <p>Khám phá các tác phẩm nghệ thuật từ cộng đồng học sinh, nơi sáng tạo và đam mê hội tụ.</p>
+        <div id="gallery-container" class="gallery-container">
+            <!-- Tác phẩm sẽ được thêm vào đây từ Firestore -->
+        </div>
+    </section>
+
+    <!-- Mục đăng bài mới -->
+    <section id="submit-artwork">
+        <h2>Đăng Bài Lên Trang Web</h2>
+        <p>Chia sẻ tác phẩm nghệ thuật của bạn với cộng đồng! Tải lên hình ảnh và mô tả để mọi người cùng thưởng thức.</p>
+        <form id="artwork-form">
+            <label for="name">Tên của bạn:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="email">Email của bạn:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="artwork">Tải lên tác phẩm nghệ thuật:</label>
+            <input type="file" id="artwork" name="artwork" accept="image/*" required onchange="previewImage(event)">
+            <img id="image-preview" style="display: none; margin-top: 10px; max-width: 100%; border-radius: 8px;" />
+            
+            <label for="message">Mô tả tác phẩm:</label>
+            <textarea id="message" name="message" rows="4" required></textarea>
+            
+            <button type="submit">Đăng bài</button>
+        </form>
+        <p id="confirmation-message" style="color: green; text-align: center; display: none;">Tác phẩm của bạn đã được đăng thành công!</p>
+    </section>
+
+    <!-- Phần Liên Hệ -->
+    <section id="contact">
+        <h2>Liên Hệ</h2>
+        <p>Liên hệ với chúng tôi qua email: <a href="mailto:thanhdat777nn@gmail.com">thanhdat777nn@gmail.com</a></p>
+        <p>Số điện thoại: 0338xxxxxxx</p>
+        <p>Theo dõi chúng tôi trên mạng xã hội để cập nhật tin tức:</p>
+        <div class="social-icons">
+            <a href="https://www.facebook.com"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.twitter.com"><i class="fab fa-twitter"></i></a>
+			<a href="https://www.messenger.com"><i class="fa-messenger"></i></a>
+        </div>
+    </section>
+
+    <footer>
+        <p>2025 Khám Phá Sáng Tạo Nghệ Thuật. Chấp cánh ước mơ tuổi học trò cùng nhau nhé. <i class="fas fa-rocket"></i></p>
+    </footer>
+
+    <!-- Nút quay lại đầu trang -->
+    <button class="back-to-top" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">↑</button>
+
+    <script>
+       // Kiểm tra xem ảnh đã được chọn chưa và xem trước ảnh
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function () {
+                const imgElement = document.getElementById('image-preview');
+                imgElement.style.display = 'block';
+                imgElement.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Xử lý khi người dùng gửi bài đăng
+        document.getElementById('artwork-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            let name = document.getElementById('name').value;
+            let email = document.getElementById('email').value;
+            let fileInput = document.getElementById('artwork');
+            let message = document.getElementById('message').value;
+
+            // Kiểm tra các trường nhập liệu
+            if (!name || !email || !fileInput.files.length || !message) {
+                alert("Vui lòng điền đầy đủ thông tin!");
+                return;
+            }
+
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                // Lưu bài đăng vào LocalStorage
+                let artworkData = {
+                    name: name,
+                    email: email,
+                    artwork: e.target.result,
+                    message: message,
+                    createdAt: new Date().toISOString()
+                };
+                
+                let savedArtworks = JSON.parse(localStorage.getItem('artworks')) || [];
+                savedArtworks.push(artworkData);
+                localStorage.setItem('artworks', JSON.stringify(savedArtworks));
+
+                // Thêm tác phẩm vào trang
+                addArtworkToGallery(artworkData);
+
+                // Hiển thị thông báo xác nhận
+                document.getElementById('confirmation-message').style.display = 'block';
+
+                // Xóa nội dung form
+                document.getElementById('artwork-form').reset();
+                document.getElementById('image-preview').style.display = 'none';
+            };
+
+            reader.readAsDataURL(fileInput.files[0]);
+        });
+
+        // Hàm thêm tác phẩm vào trang
+        function addArtworkToGallery(artworkData) {
+            let gallery = document.getElementById('gallery-container');
+            let figure = document.createElement('figure');
+            
+            let img = document.createElement('img');
+            img.src = artworkData.artwork;
+            img.alt = "Tác phẩm nghệ thuật của " + artworkData.name;
+            
+            let figcaption = document.createElement('figcaption');
+            figcaption.innerHTML = `<strong>${artworkData.name}</strong>: ${artworkData.message} <br> 
+                <button onclick="reactToArtwork(this, 'like')">👍</button>
+                <button onclick="reactToArtwork(this, 'love')">❤️</button>
+                <button onclick="reactToArtwork(this, 'wow')">😲</button>
+                <span class="reaction-count">0</span>
+                <button onclick="deleteArtwork(this)">🗑️</button>`;  // Nút thùng rác để xóa bài đăng
+
+            let commentsSection = document.createElement('div');
+            commentsSection.classList.add('comments');
+            commentsSection.innerHTML = `
+                <input type="text" placeholder="Viết bình luận..." onkeydown="if(event.key === 'Enter'){submitComment(this)}">
+                <button onclick="submitComment(this)">Gửi</button>
+                <div class="comment-list"></div>
+            `;
+
+            figure.appendChild(img);
+            figure.appendChild(figcaption);
+            figure.appendChild(commentsSection);
+            gallery.appendChild(figure);
+        }
+        // Tải lại các bài đăng đã lưu từ LocalStorage khi tải trang
+        window.onload = function() {
+            let savedArtworks = JSON.parse(localStorage.getItem('artworks')) || [];
+            savedArtworks.forEach(artwork => addArtworkToGallery(artwork));
+        };
+        // Hàm xử lý các cảm xúc
+        function reactToArtwork(button, reactionType) {
+            let reactionCount = button.parentElement.querySelector('.reaction-count');
+            let count = parseInt(reactionCount.innerText);
+            reactionCount.innerText = count + 1;
+        }
+
+        // Hàm gửi bình luận
+        function submitComment(inputElement) {
+            let commentText = inputElement.previousElementSibling.value;
+            if (commentText.trim() === "") return;
+
+            let commentList = inputElement.parentElement.querySelector('.comment-list');
+            let newComment = document.createElement('p');
+            newComment.textContent = commentText;
+            commentList.appendChild(newComment);
+
+            inputElement.previousElementSibling.value = "";
+        }
+        // Hàm xóa bài đăng
+        function deleteArtwork(button) {
+            // Xóa bài đăng khỏi giao diện
+            let figure = button.closest('figure');
+            let imgSrc = figure.querySelector('img').src;
+            let savedArtworks = JSON.parse(localStorage.getItem('artworks')) || [];
+            
+            // Lọc bài đăng cần xóa
+            savedArtworks = savedArtworks.filter(artwork => artwork.artwork !== imgSrc);
+
+            // Cập nhật lại localStorage
+            localStorage.setItem('artworks', JSON.stringify(savedArtworks));
+
+            // Xóa bài đăng khỏi giao diện
+            figure.remove();
+        }
+    </script>
+</body>
+</html>
+
+ 
